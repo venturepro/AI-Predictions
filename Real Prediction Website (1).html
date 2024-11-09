@@ -1,0 +1,255 @@
+<html><head><base href="." />
+<meta charset="UTF-8">
+<title>SportsBrain AI Predictions</title>
+<style>
+:root {
+  --primary: #1a237e;
+  --secondary: #ff6f00;
+  --background: #f5f5f5;
+  --text: #212121;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+  color: var(--text);
+}
+
+.header {
+  background: var(--primary);
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.search-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.prediction-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+textarea, select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+button {
+  background: var(--secondary);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #f57c00;
+}
+
+.results-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.prediction-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.confidence-meter {
+  width: 100%;
+  height: 20px;
+  background: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.confidence-level {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #8bc34a);
+  transition: width 0.3s ease;
+}
+
+.sport-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 0.5rem;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.loading {
+  animation: pulse 1.5s infinite;
+}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <h1>SportsBrain AI Predictions</h1>
+  <p>Advanced Sports Analytics & Predictions</p>
+</div>
+
+<div class="container">
+  <div class="search-section">
+    <h2>Get Predictions</h2>
+    <div class="prediction-form">
+      <div class="input-group">
+        <label for="sport-select">Select Sport</label>
+        <select id="sport-select">
+          <option value="nfl">NFL Football</option>
+          <option value="ncaaf">College Football</option>
+          <option value="nba">NBA Basketball</option>
+          <option value="ncaab">College Basketball</option>
+          <option value="ufc">UFC</option>
+          <option value="boxing">Boxing</option>
+          <option value="soccer">Soccer</option>
+        </select>
+      </div>
+      
+      <div class="input-group">
+        <label for="prediction-input">Enter Games/Events (one per line)</label>
+        <textarea id="prediction-input" rows="5" placeholder="Example:
+Chiefs vs Raiders
+Lakers vs Celtics
+Fury vs Joshua"></textarea>
+      </div>
+      
+      <button onclick="generatePredictions()">Generate Predictions</button>
+    </div>
+  </div>
+
+  <div class="results-section" id="results">
+    <!-- Predictions will be inserted here -->
+  </div>
+</div>
+
+<script>
+function generatePredictions() {
+  const sport = document.getElementById('sport-select').value;
+  const input = document.getElementById('prediction-input').value;
+  const resultsDiv = document.getElementById('results');
+  
+  // Show loading state
+  resultsDiv.innerHTML = '<div class="loading">Analyzing data and generating predictions...</div>';
+  
+  // Simulate API call delay
+  setTimeout(() => {
+    const predictions = analyzeSport(sport, input);
+    displayPredictions(predictions);
+  }, 1500);
+}
+
+function analyzeSport(sport, input) {
+  const games = input.split('\n').filter(game => game.trim());
+  const predictions = [];
+  
+  games.forEach(game => {
+    const teams = game.split('vs').map(team => team.trim());
+    if (teams.length !== 2) return;
+    
+    const prediction = {
+      sport: sport,
+      teams: teams,
+      confidence: Math.random() * 40 + 60, // 60-100% confidence
+      prediction: generatePredictionText(sport, teams),
+      odds: generateOdds()
+    };
+    
+    predictions.push(prediction);
+  });
+  
+  return predictions;
+}
+
+function generatePredictionText(sport, teams) {
+  switch(sport) {
+    case 'nfl':
+    case 'ncaaf':
+    case 'nba':
+    case 'ncaab':
+      const spread = Math.floor(Math.random() * 14) + 3;
+      return `${teams[0]} to win by ${spread} points`;
+      
+    case 'ufc':
+    case 'boxing':
+      const methods = ['KO/TKO', 'Submission', 'Decision'];
+      const rounds = Math.floor(Math.random() * 5) + 1;
+      return `${teams[0]} by ${methods[Math.floor(Math.random() * methods.length)]} in round ${rounds}`;
+      
+    case 'soccer':
+      const goals1 = Math.floor(Math.random() * 4);
+      const goals2 = Math.floor(Math.random() * 4);
+      return `${teams[0]} ${goals1} - ${goals2} ${teams[1]}`;
+  }
+}
+
+function generateOdds() {
+  const decimal = (Math.random() * 2 + 1.1).toFixed(2);
+  return `${decimal}`;
+}
+
+function displayPredictions(predictions) {
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.innerHTML = '<h2>Predictions</h2>';
+  
+  predictions.forEach(pred => {
+    const card = document.createElement('div');
+    card.className = 'prediction-card';
+    
+    card.innerHTML = `
+      <h3>${pred.teams[0]} vs ${pred.teams[1]}</h3>
+      <p><strong>Prediction:</strong> ${pred.prediction}</p>
+      <p><strong>Odds:</strong> ${pred.odds}</p>
+      <div class="confidence-meter">
+        <div class="confidence-level" style="width: ${pred.confidence}%"></div>
+      </div>
+      <p><strong>Confidence:</strong> ${Math.round(pred.confidence)}%</p>
+    `;
+    
+    resultsDiv.appendChild(card);
+  });
+}
+</script>
+
+</body></html>
